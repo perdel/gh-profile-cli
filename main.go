@@ -3,8 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+
+	"github.com/rivo/tview"
 )
 
 // GitHubUser represents the structure of a GitHub user profile
@@ -12,6 +15,7 @@ type GitHubUser struct {
 	Login       string `json:"login"`
 	Name        string `json:"name"`
 	Followers   int    `json:"followers"`
+	Following   int    `json:"following"`
 	PublicRepos int    `json:"public_repos"`
 }
 
@@ -48,6 +52,15 @@ func main() {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
+	app := tview.NewApplication()
 
-	fmt.Printf("User: %s (%s)\nFollowers: %d\nPublic Repos: %d\n", user.Name, user.Login, user.Followers, user.PublicRepos)
+	textView := tview.NewTextView().
+		SetText(fmt.Sprintf("GitHub User: %s\nName: %s\nFollowers: %d\nFollowing: %d\nPublic Repos: %d", user.Login, user.Name, user.Followers, user.Following, user.PublicRepos)).
+		SetTextAlign(tview.AlignCenter).
+		SetDynamicColors(true)
+
+	if err := app.SetRoot(textView, true).Run(); err != nil {
+		log.Fatalf("Error running TUI: %v", err)
+	}
+
 }
